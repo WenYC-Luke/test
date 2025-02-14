@@ -1,0 +1,27 @@
+CREATE PROCEDURE usp_deleteDevice
+    @DeviceId UNIQUEIDENTIFIER
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- 檢查是否存在該 DeviceId
+    IF NOT EXISTS (SELECT 1 FROM Devices WHERE DeviceId = @DeviceId)
+    BEGIN
+        -- 如果找不到裝置，回傳錯誤訊息
+        SELECT N'{ "status": "error", "message": "DeviceId 不存在" }' AS JsonResult;
+        RETURN;
+    END;
+
+    -- 刪除裝置
+    DELETE FROM Devices WHERE DeviceId = @DeviceId;
+
+    -- 檢查是否真的刪除了資料
+    IF @@ROWCOUNT = 0
+    BEGIN
+        SELECT N'{ "status": "error", "message": "刪除失敗" }' AS JsonResult;
+        RETURN;
+    END;
+
+    -- 成功刪除時回傳
+    SELECT N'{ "status": "success", "message": "刪除成功" }' AS JsonResult;
+END;

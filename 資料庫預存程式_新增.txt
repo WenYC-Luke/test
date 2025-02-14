@@ -1,0 +1,24 @@
+CREATE PROCEDURE usp_createDevice
+    @DeviceName NVARCHAR(255),
+    @DeviceType NVARCHAR(255),
+    @ProduceDate DATE
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+	--建立新的DeviceId
+	DECLARE @DeviceId UNIQUEIDENTIFIER = NEWID();
+
+    --插入資料
+    INSERT INTO Devices (DeviceId, DeviceName, DeviceType, ProduceDate)
+    VALUES (@DeviceId, @DeviceName, @DeviceType, @ProduceDate);
+
+    --返回新增裝置訊息(Json)
+   SELECT 
+        (SELECT 
+        @DeviceId AS DeviceId, 
+        @DeviceName AS DeviceName, 
+        @DeviceType AS DeviceType, 
+        @ProduceDate AS ProduceDate
+    FOR JSON PATH, WITHOUT_ARRAY_WRAPPER) AS JsonResult;
+END;

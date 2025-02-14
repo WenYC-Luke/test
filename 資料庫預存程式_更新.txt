@@ -1,0 +1,37 @@
+CREATE PROCEDURE usp_updateDevice
+	@DeviceId UNIQUEIDENTIFIER,
+	@DeviceName NVARCHAR(100) = NULL,
+	@DeviceType NVARCHAR(50) = NULL,
+	@ProduceDate DATE =NULL
+AS
+BEGIN
+	SET NOCOUNT ON;
+	
+	--判斷是否有裝置
+	IF NOT EXISTS (SELECT 1 FROM Devices WHERE DeviceId = @DeviceId)
+BEGIN
+    -- 回傳錯誤訊息   
+    SELECT '{ "status": "error", "message": "DeviceId 不存在", "data": null}' AS JsonResult;
+    RETURN;    
+END
+	
+    --更新裝置
+    UPDATE Devices
+    SET 
+    DeviceName = COALESCE(@DeviceName, DeviceName),
+    DeviceType = COALESCE(@DeviceType, DeviceType),
+    ProduceDate = COALESCE(@ProduceDate, ProduceDate)
+    WHERE DeviceId = @DeviceId;
+	
+    --返回裝置
+    SELECT 
+    'success' AS status,
+    N'更新成功' AS message,
+    JSON_QUERY(
+	(SELECT DeviceId, DeviceName, DeviceType, ProduceDate 
+	FROM Devices 
+	WHERE DeviceId = @DeviceId 
+	FOR JSON PATH, WITHOUT_ARRAY_WRAPPER)
+	) AS data
+    FOR JSON PATH, WITHOUT_ARRAY_WRAPPER;
+END;

@@ -1,0 +1,14 @@
+CREATE PROCEDURE usp_getDevices  
+    
+    --傳入參數(可null)
+    @DeviceId UNIQUEIDENTIFIER = NULL
+
+AS  
+BEGIN  
+	
+    --判斷有無傳入參數，有（全部資料），無（單筆資料）
+    IF @DeviceId IS NULL
+	SELECT * FROM Devices FOR JSON PATH;
+    ELSE
+	SELECT * FROM Devices WHERE DeviceId = @DeviceId FOR JSON PATH;  
+END;
