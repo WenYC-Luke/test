@@ -1,7 +1,14 @@
+using test.Service;
+using test.Service.Impl;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+// 註冊Service 
+//當有人請求 IDeviceCRUD，就提供 DeviceCRUDImpl 的實例。
+builder.Services.AddScoped<IDeviceCRUD, DeviceCRUDImpl>();
 
 var app = builder.Build();
 
